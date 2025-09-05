@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator with Floating Action Bar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 414px;
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      margin-bottom: 80px; /* Space for the floating bar */
+    }
+    
+    .app-header {
+      padding: 20px;
+      text-align: center;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: white;
+    }
+    
+    .app-header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    
+    .app-content {
+      padding: 20px;
+    }
+    
+    .calculator {
+      margin-bottom: 30px;
+    }
+    
+    .display {
+      width: 100%;
+      height: 70px;
+      margin-bottom: 15px;
+      padding: 15px;
+      font-size: 28px;
+      text-align: right;
+      border: none;
+      border-radius: 12px;
+      background: #f5f5f7;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+      color: #333;
+    }
+    
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-gap: 10px;
+    }
+    
+    button.calc-btn {
+      border: none;
+      padding: 15px;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      color: #333;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+    button.calc-btn:hover {
+      background: #f0f0f0;
+      transform: translateY(-2px);
+    }
+    
+    button.calc-btn:active {
+      transform: translateY(0);
+    }
+    
+    .operator {
+      background: #ff9500;
+      color: white;
+    }
+    
+    .operator:hover {
+      background: #ff8a00;
+    }
+    
+    .equals {
+      background: #34c759;
+      color: white;
+    }
+    
+    .equals:hover {
+      background: #30be53;
+    }
+    
+    .clear {
+      background: #ff3b30;
+      color: white;
+    }
+    
+    .clear:hover {
+      background: #ff2a1e;
+    }
+    
+    .notes-section {
+      margin-top: 20px;
+    }
+    
+    .notes-section h2 {
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+      color: #333;
+      text-align: center;
+    }
+    
+    #noteInput {
+      width: 100%;
+      height: 100px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      resize: none;
+      font-size: 16px;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    #notesList {
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    
+    .note-item {
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      border-left: 4px solid #007aff;
+      font-size: 14px;
+      line-height: 1.5;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .note-item p {
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+    
+    .note-date {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    /* Floating Action Bar */
+    .floating-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 414px;
+      background: white;
+      border-radius: 50px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 12px 20px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+    
+    .floating-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: #666;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      padding: 8px 12px;
+      border-radius: 20px;
+    }
+    
+    .floating-btn:hover {
+      background: #f0f5ff;
+      color: #2575fc;
+    }
+    
+    .floating-btn i {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+    
+    .floating-btn.active {
+      background: #2575fc;
+      color: white;
+    }
+    
+    /* Dark mode */
+    .dark-mode {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    }
+    
+    .dark-mode .container {
+      background: #222;
+    }
+    
+    .dark-mode .display {
+      background: #333;
+      color: #f0f0f0;
+    }
+    
+    .dark-mode button.calc-btn {
+      background: #444;
+      color: #f0f0f0;
+    }
+    
+    .dark-mode button.calc-btn:hover {
+      background: #555;
+    }
+    
+    .dark-mode .notes-section h2 {
+      color: #f0f0f0;
+    }
+    
+    .dark-mode #noteInput {
+      background: #333;
+      color: #f0f0f0;
+      border: 1px solid #444;
+    }
+    
+    .dark-mode .note-item {
+      background: #333;
+    }
+    
+    .dark-mode .floating-bar {
+      background: #333;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .dark-mode .floating-btn {
+      color: #ddd;
+    }
+    
+    .dark-mode .floating-btn:hover {
+      background: #3a3a4e;
+      color: #6a11cb;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 360px) {
+      .app-header h1 {
+        font-size: 1.5rem;
+      }
+      
+      button.calc-btn {
+        padding: 12px;
+        font-size: 16px;
+      }
+      
+      .floating-btn {
+        font-size: 11px;
+        padding: 6px 10px;
+      }
+      
+      .floating-btn i {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="app-header">
+      <h1><i class="fas fa-calculator"></i> Calculator & Notes</h1>
+    </div>
+    
+     <div class="app-content">
+      <div class="calculator">
+        <input type="text" class="display" id="display" readonly value="0">
+        <div class="buttons">
+          <button class="calc-btn clear" onclick="clearDisplay()">C</button>
+          <button class="calc-btn" onclick="deleteLast()"><i class="fas fa-backspace"></i></button>
+          <button class="calc-btn operator" onclick="appendToDisplay('/')">/</button>
+          <button class="calc-btn operator" onclick="appendToDisplay('*')">×</button>
+          
+          <button class="calc-btn" onclick="appendToDisplay('7')">7</button>
+          <button class="calc-btn" onclick="appendToDisplay('8')">8</button>
+          <button class="calc-btn" onclick="appendToDisplay('9')">9</button>
+          <button class="calc-btn operator" onclick="appendToDisplay('-')">-</button>
+          
+          <button class="calc-btn" onclick="appendToDisplay('4')">4</button>
+          <button class="calc-btn" onclick="appendToDisplay('5')">5</button>
+          <button class="calc-btn" onclick="appendToDisplay('6')">6</button>
+          <button class="calc-btn operator" onclick="appendToDisplay('+')">+</button>
+          
+          <button class="calc-btn" onclick="appendToDisplay('1')">1</button>
+          <button class="calc-btn" onclick="appendToDisplay('2')">2</button>
+          <button class="calc-btn" onclick="appendToDisplay('3')">3</button>
+          <button class="calc-btn equals" onclick="calculate()">=</button>
+          
+          <button class="calc-btn" onclick="appendToDisplay('0')" style="grid-column: span 2;">0</button>
+          <button class="calc-btn" onclick="appendToDisplay('.')">.</button>
+        </div>
+      </div>
+      
+      <div class="notes-section">
+        <h2><i class="fas fa-sticky-note"></i> Notes</h2>
+        <textarea id="noteInput" placeholder="Type your notes here..."></textarea>
+        <div id="notesList"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Floating Action Bar -->
+  <div class="floating-bar">
+    <button class="floating-btn active" id="btn-calc">
+      <i class="fas fa-calculator"></i>
+      <span>Calculator</span>
+    </button>
+    <button class="floating-btn" id="btn-notes">
+      <i class="fas fa-sticky-note"></i>
+      <span>Notes</span>
+    </button>
+    <button class="floating-btn" id="btn-theme">
+      <i class="fas fa-moon"></i>
+      <span>Theme</span>
+    </button>
+    <button class="floating-btn" id="btn-clear">
+      <i class="fas fa-trash"></i>
+      <span>Clear</span>
+    </button>
+    <button class="floating-btn" id="btn-save">
+      <i class="fas fa-save"></i>
+      <span>Save</span>
+    </button>
+  </div>
+
+  <script>
+    // Calculator functionality
+    let display = document.getElementById('display');
+    let notes = JSON.parse(localStorage.getItem('calculatorNotes')) || [];
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+    
+    function appendToDisplay(value) {
+      if (display.value === '0' && value !== '.') {
+        display.value = value;
+      } else {
+        display.value += value;
+      }
+    }
+    
+    function clearDisplay() {
+      display.value = '0';
+    }
+    
+    function deleteLast() {
+      display.value = display.value.slice(0, -1);
+      if (display.value === '') {
+        display.value = '0';
+      }
+    }
+    
+    function calculate() {
+      try {
+        let expression = display.value.replace(/×/g, '*');
+        let result = eval(expression);
+        
+        if (!isFinite(result)) {
+          throw new Error('Invalid calculation');
+        }
+        
+        // Format the result
+        result = parseFloat(result.toFixed(10));
+        
+        // Update display
+        display.value = result;
+        
+        // Auto-save the calculation to notes
+        autoSaveCalculation(expression, result);
+      } catch (error) {
+        display.value = 'Error';
+        setTimeout(() => {
+          display.value = '0';
+        }, 1500);
+      }
+    }
+    
+    // Notes functionality
+    function saveNote() {
+      const noteInput = document.getElementById('noteInput');
+      const noteText = noteInput.value.trim();
+      
+      if (noteText) {
+        const note = {
+          text: noteText,
+          date: new Date().toLocaleString()
+        };
+        
+        notes.push(note);
+        updateLocalStorage();
+        renderNotes();
+        noteInput.value = '';
+        
+        // Show confirmation
+        alert('Note saved successfully!');
+      }
+    }
+    
+    function autoSaveCalculation(expression, result) {
+      const note = {
+        text: `${expression} = ${result}`,
+        date: new Date().toLocaleString(),
+        isCalculation: true
+      };
+      
+      notes.push(note);
+      updateLocalStorage();
+      renderNotes();
+    }
+    
+    function deleteNote(index) {
+      if (confirm('Are you sure you want to delete this note?')) {
+        notes.splice(index, 1);
+        updateLocalStorage();
+        renderNotes();
+      }
+    }
+    
+    function clearNotes() {
+      if (confirm('Are you sure you want to delete all notes? This cannot be undone.')) {
+        notes = [];
+        updateLocalStorage();
+        renderNotes();
+      }
+    }
+    
+    function updateLocalStorage() {
+      localStorage.setItem('calculatorNotes', JSON.stringify(notes));
+    }
+    
+    function renderNotes() {
+      const notesList = document.getElementById('notesList');
+      notesList.innerHTML = '';
+      
+      if (notes.length === 0) {
+        notesList.innerHTML = '<p style="text-align: center; color: #888; margin-top: 10px;">No notes yet. Add your first note above!</p>';
+        return;
+      }
+      
+      // Display notes in reverse order (newest first)
+      for (let i = notes.length - 1; i >= 0; i--) {
+        const note = notes[i];
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note-item';
+        
+        noteElement.innerHTML = `
+          <p>${note.text}</p>
+          <span class="note-date">${note.date}</span>
+          <button style="float: right; background: #ff3b30; color: white; border: none; padding: 3px 8px; border-radius: 5px; cursor: pointer;" onclick="deleteNote(${i})">
+            <i class="fas fa-times"></i>
+          </button>
+        `;
+        
+        notesList.appendChild(noteElement);
+      }
+    }
+    
+    // Theme functionality
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      localStorage.setItem('darkMode', isDarkMode);
+      updateTheme();
+    }
+    
+    function updateTheme() {
+      if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        document.getElementById('btn-theme').innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+      } else {
+        document.body.classList.remove('dark-mode');
+        document.getElementById('btn-theme').innerHTML = '<i class="fas fa-moon"></i><span>Dark</span>';
+      }
+    }
+    
+    // Floating bar functionality
+    document.getElementById('btn-calc').addEventListener('click', function() {
+      document.querySelector('.calculator').style.display = 'block';
+      document.querySelector('.notes-section').style.display = 'none';
+      setActiveButton(this);
+    });
+    
+    document.getElementById('btn-notes').addEventListener('click', function() {
+      document.querySelector('.calculator').style.display = 'none';
+      document.querySelector('.notes-section').style.display = 'block';
+      setActiveButton(this);
+    });
+    
+    document.getElementById('btn-theme').addEventListener('click', function() {
+      toggleTheme();
+      setActiveButton(this);
+    });
+    
+    document.getElementById('btn-clear').addEventListener('click', function() {
+      clearNotes();
+      setActiveButton(this);
+    });
+    
+    document.getElementById('btn-save').addEventListener('click', function() {
+      saveNote();
+      setActiveButton(this);
+    });
+    
+    function setActiveButton(button) {
+      // Remove active class from all buttons
+      document.querySelectorAll('.floating-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Add active class to clicked button
+      button.classList.add('active');
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      display.value = '0';
+      renderNotes();
+      updateTheme();
+      
+      // Set calculator as default view
+      document.querySelector('.calculator').style.display = 'block';
+      document.querySelector('.notes-section').style.display = 'none';
+    });
+    
+    // Keyboard support
+    document.addEventListener('keydown', (event) => {
+      if (/[0-9]/.test(event.key)) {
+        appendToDisplay(event.key);
+      } else if (event.key === '+') {
+        appendToDisplay('+');
+      } else if (event.key === '-') {
+        appendToDisplay('-');
+      } else if (event.key === '*') {
+        appendToDisplay('*');
+      } else if (event.key === '/') {
+        event.preventDefault();
+        appendToDisplay('/');
+      } else if (event.key === '.') {
+        appendToDisplay('.');
+      } else if (event.key === 'Enter' || event.key === '=') {
+        calculate();
+      } else if (event.key === 'Escape') {
+        clearDisplay();
+      } else if (event.key === 'Backspace') {
+        deleteLast();
+      }
+    });
+  </script>
+</body>
+</html>
